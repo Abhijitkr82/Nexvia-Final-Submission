@@ -1,0 +1,115 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  EDITOR
+  COMMENTER
+  VIEWER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedWorkspaces Workspace[]       @relation("WorkspaceOwner")
+  memberships    WorkspaceMember[]
+  createdPages   Page[]              @relation("PageCreator")
+  comments       Comment[]
+  versions       PageVersion[]       @relation("VersionCreator")
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner   User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members WorkspaceMember[]
+  pages   Page[]
+}
+
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole @default(VIEWER)
+  createdAt   DateTime      @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  title       String   @default("Untitled Page")
+  workspaceId String
+  createdById String
+  content     Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator   User         @relation("PageCreator", fields: [createdById], references: [id])
+  document  PageDocument?
+  comments  Comment[]
+  versions  PageVersion[]
+
+  @@index([workspaceId])
+}
+
+model PageDocument {
+  pageId    String   @id
+  state     Bytes?
+  updatedAt DateTime @updatedAt
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  pageId    String
+  authorId  String
+  content   String
+  anchor    Json?
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  page   Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([pageId])
+}
+
+model PageVersion {
+  id          String   @id @default(cuid())
+  pageId      String
+  createdById String
+  snapshot    Bytes
+  createdAt   DateTime @default(now())
+
+  page    Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  creator User @relation("VersionCreator", fields: [createdById], references: [id])
+
+  @@index([pageId, createdAt])
+}

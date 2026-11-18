@@ -1,0 +1,41 @@
+{
+  "name": "nexvia-fs02",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint",
+    "realtime": "node --env-file-if-exists=.env realtime-server/server.js"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "@tiptap/extension-collaboration": "^3.33.1",
+    "@tiptap/extension-collaboration-caret": "^3.33.1",
+    "@tiptap/react": "^3.33.1",
+    "@tiptap/starter-kit": "^3.33.1",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.9",
+    "ioredis": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "next": "16.4.5",
+    "pg": "^8.23.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "ws": "^8.22.1",
+    "y-protocols": "^1.0.7",
+    "y-websocket": "^3.1.0",
+    "yjs": "^13.6.33"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/pg": "^8.23.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.5",
+    "prisma": "^7.10.1",
+    "tailwindcss": "^4"
+  },
+  "type": "module"
+}
